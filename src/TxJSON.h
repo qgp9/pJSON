@@ -25,24 +25,12 @@ public:
     Result(Iterator _it, StatusCode _st=kUnknown ):it(_it),status(_st){}
     Result(){}
     Result( Result && o ){
-      //std::cout<<"Result move "<<o.dic.Str()<<"\t"<<dic.Str()<<std::endl;;
-      it = o.it;
-      status = o.status;
-      dic = std::move(o.dic);
-    }
-    Result& operator=( Result & o ){
-      //std::cout<<"Result assign status "<<o.status<<"\t"<<status<<std::endl;;
-      //std::cout<<"Result assign "<<o.dic.Str()<<"\t"<<dic.Str()<<std::endl;;
-      it = o.it;
-      status = o.status;
-      dic = o.dic;
-      return *this;
+      if( this != &o ) this->operator=(std::move(o));
     }
     Result& operator=( Result && o ){
-      it = std::move(o.it);
-      status = std::move(o.status);
+      it = o.it;
+      status = o.status;
       dic = std::move(o.dic);
-      //std::cout<<"Result move assign after '"<<o.dic.Str()<<"'\t'"<<dic.Str()<<"'"<<std::endl;;
       return *this;
     }
     Result && Set(Iterator _it, StatusCode _st=kUnknown, TxDict d=TxDict() ){ it=_it;status=_st;dic=d; return std::move(*this);}

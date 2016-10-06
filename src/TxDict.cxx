@@ -4,31 +4,22 @@
 #include <utility>
 //______________________________________________
 TxDict::TxDict( const TxDict & o ){
-  switch(o.fType){
-    case kxString: Set(*o.fP.s) ;break;
-    case kxArray:  Set(*o.fP.a) ;break;
-    case kxMap:    Set(*o.fP.m)   ;break;
-    default: fP=o.fP;fType=o.fType;break;
-  }
-  std::cout<<"!!!! TxDict Copy Con type"<<o.fType<<"\t"<<o.fP.i<<"\t"<<Str()<<std::endl;
+  if( this != &o ) this->operator=(std::move(o));
 }
 
 //______________________________________________
 TxDict::TxDict( TxDict && o ) noexcept {
-    //std::cout<<"TxDict move type "<<o.fType<<"\t"<<o.fP.i<<std::endl;
   fP = o.fP; o.fP.ul = 0;
   fType = o.fType; o.fType=kxUnknown;
 }
 //______________________________________________
 TxDict& TxDict::operator=( TxDict &&o ){
-   // std::cout<<"TxDict move assign type "<<o.fType<<"\t"<<o.fP.i<<std::endl;
   fP = o.fP; o.fP.ul = 0;
   fType = o.fType; o.fType=kxUnknown;
   return *this;
 }
 //______________________________________________
 TxDict& TxDict::operator=( const TxDict &o ){
-    std::cout<<"!!!! TxDict assign type "<<o.fType<<"\t"<<o.fP.i<<std::endl;
   switch(o.fType){
     case kxString: Set(*o.fP.s) ;break;
     case kxArray:  Set(*o.fP.a) ;break;
@@ -153,7 +144,6 @@ TxDict::Map&  TxDict::GetMap() const {
 
 void TxDict::WarnType( Type a, Type b) const {
   if( a == b ) return;
-  //std::cout<<"WARN: Converting from "<<a<<"\t"<<b<<std::endl;
 }
 
 void TxDict::ErrorType( Type a, Type b) const {

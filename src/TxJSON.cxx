@@ -24,7 +24,6 @@ bool TxJSON::LoadFile( String path ){
 
 bool TxJSON::Compile(){
   fResult = ScanItem(fIt);
-  //std::cout<<fResult.dic.Str()<<std::endl;
   return fResult.status < kFail;
 }
 
@@ -32,25 +31,19 @@ TxJSON::Result  TxJSON::ScanItem(Iterator &it){
   Result r;
   SkipWhiteSpace(it);
 
-  //std::cout<<"ITEM before"<<std::endl;
   if( *it == '"' || *it=='\'') r = ScanString(it, *it);
-  else if( (*it>='0' && *it<='9') || *it == '.' || *it=='+' || *it=='-' ) {
-  //std::cout<<"ITEM B assign number "<<std::endl;
+  else if( (*it>='0' && *it<='9') || *it == '.' || *it=='+' || *it=='-' )
     r=ScanNumber(it);
-  //std::cout<<"ITEM A assign number "<<std::endl;
-  }
   else if( *it=='t' || *it=='f' ) r=ScanBoolean(it);
   else if( *it == '[' ) r=ScanArray(it);
   else if( *it == '{' ) r=ScanMap(it);
   else {
     r.Set(it+1, kUnknown);
   }
-  //std::cout<<"ITEM after : "<< r.dic.Str()<<std::endl;
   return r;
 }
 
 TxJSON::Result  TxJSON::ScanArray(Iterator &it){
-
   bool closed = false;
   Result rArray;
   auto & dict = rArray.dic;
@@ -67,14 +60,10 @@ TxJSON::Result  TxJSON::ScanArray(Iterator &it){
     if( *it == ']' ) closed = true;
     else if( *it !=',' ) return r.Set(it,kWrongArray);
     if( r.status < kFail ){
-      //std::cout<<"---ARRAY before push"<<std::endl;
-      //std::cout<<r.dic.Str()<<std::endl;
       dict.GetArray().push_back( std::move(r.dic) );
-      //std::cout<<"---ARRAY after push"<<std::endl;
     }
     else return r;
   }
-  //std::cout<<"ARRAY before return dict : "<<dict.Str()<<std::endl;
   if( closed ){ 
     rArray.it=it;rArray.status=kSuccess;
     return rArray;
@@ -83,7 +72,6 @@ TxJSON::Result  TxJSON::ScanArray(Iterator &it){
 }
 
 TxJSON::Result  TxJSON::ScanMap(Iterator &it){ 
-  //std::cout<<"START MAP "<<*it<<std::endl;
   Result rMap;
   rMap.dic = TxDict::Map();
   Result r;
@@ -92,12 +80,8 @@ TxJSON::Result  TxJSON::ScanMap(Iterator &it){
   String key = "";
   while( Next(it) && closed == false){
     auto r = ScanItem(it);it=r.it;
-    //std::cout<<r.status<<std::endl;
     if( r.status > kFail ) return r;
-    //std::cout<<"B==>"<<*it<<"<=="<<std::endl;
     SkipWhiteSpace(it);
-    //std::cout<<"A==>"<<*it<<"<=="<<std::endl;
-    //std::cout<<*it<<std::endl;
     if( *it == '}' && wait_key==false ) closed = true;
     if( *it == ':' && wait_key==true && (r.dic.IsInt()||r.dic.IsDouble()||r.dic.IsString())  ) { 
       key = r.dic.GetString();
@@ -112,7 +96,6 @@ TxJSON::Result  TxJSON::ScanMap(Iterator &it){
   rMap.it = it;rMap.status=kSuccess;
   if( closed ) return rMap;
 
-  //std::cout<<"HERE : "<<*it<<std::endl;
   return r.Set( it, kWrongMap );
 }
 TxJSON::Result  TxJSON::ScanBoolean(Iterator &it){

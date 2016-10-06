@@ -1,6 +1,6 @@
 #include <iostream>
 #include <iomanip>
-#include "TxJSON.h"
+#include "../src/TxJSON.h"
 
 using namespace std;
 
