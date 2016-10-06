@@ -27,3 +27,9 @@
 *.exe
 *.out
 *.app
+
+# User
+log
+*.tgz
+*.json
+gen_big_json.sh
