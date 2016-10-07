@@ -63,8 +63,6 @@ private:
   String     fString;
   Iterator   fIt;
   Result     fResult;
-  const static std::regex re_int;
-  const static std::regex re_float;
   const static std::regex re_boolean;
 };
 

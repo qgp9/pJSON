@@ -4,8 +4,6 @@
 #include <sstream>
 #endif
 
-const std::regex TxJSON::re_int(R"(^[+-]?(0x[\da-fA-F]+|0[0-8]+|\d+))");;
-const std::regex TxJSON::re_float(R"(^[+\-]?(?:\d+\.\d*|\d*\.\d+|\d+)([eE][+\-]?\d+)?)");
 const std::regex TxJSON::re_boolean(R"(^true|false)");
 
 bool TxJSON::LoadString( String s ){
