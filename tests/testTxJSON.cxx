@@ -88,7 +88,7 @@ void _testTxJSON(){
     TxJSON j;
     if( j.LoadFile( "example.json" ) ){
       auto &d = j.GetDict();
-      //cout<<d.Str(1)<<endl;
+      cout<<d.Str(1)<<endl;
     }else{
       cout<<"Error while loading file "<<j.GetErrorStr(j.GetStatus())<<endl;
       auto it = j.GetCurrentIter();

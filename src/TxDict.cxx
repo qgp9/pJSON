@@ -9,13 +9,13 @@ TxDict::TxDict( const TxDict & o ){
 
 //______________________________________________
 TxDict::TxDict( TxDict && o ) noexcept {
-  fP = o.fP; o.fP.ul = 0;
-  fType = o.fType; o.fType=kxUnknown;
+  std::swap( fP, o.fP );
+  std::swap( fType, o.fType );
 }
 //______________________________________________
 TxDict& TxDict::operator=( TxDict &&o ){
-  fP = o.fP; o.fP.ul = 0;
-  fType = o.fType; o.fType=kxUnknown;
+  std::swap( fP, o.fP );
+  std::swap( fType, o.fType );
   return *this;
 }
 //______________________________________________
