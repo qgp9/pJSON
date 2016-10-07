@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <map>
 #include <vector>
 #include <sstream>
 #include <cstdlib>
@@ -18,6 +19,7 @@ public:
   typedef std::string         String;
   typedef std::vector<TxDict>  Array;
   typedef std::unordered_map<std::string,TxDict> Map;
+  //typedef std::map<std::string,TxDict> Map;
   typedef union {
     unsigned long long ul;
     Int     i;

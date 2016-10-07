@@ -4,6 +4,9 @@
 #include <sstream>
 #endif
 
+#define Next(x) (++x!=fString.end())
+#define SkipWhiteSpace(it)  --it;while( Next(it) && (*it==' ' || *it=='\t' || *it=='\n' || *it=='\r')){}
+
 const std::regex TxJSON::re_boolean(R"(^true|false)");
 
 bool TxJSON::LoadString( String s ){
@@ -17,7 +20,8 @@ bool TxJSON::LoadFile( String path ){
   os << std::ifstream(path.c_str()
       //,std::ios::in|std::ios::binary|std::ios::ate
       ).rdbuf();
-  return LoadString( os.str() );
+  SetJSONStringLV( std::move(os.str()) );
+  return Compile();
 }
 
 bool TxJSON::Compile(){
@@ -96,18 +100,21 @@ TxJSON::Result  TxJSON::ScanMap(Iterator &it){
 
   return r.Set( it, kWrongMap );
 }
+
 TxJSON::Result  TxJSON::ScanBoolean(Iterator &it){
-  Result r;
-  auto rend = std::sregex_iterator();
-  auto rbool = std::sregex_iterator( it, fString.end(), re_boolean);
-  if( rbool == rend )
-    return r.Set( it, kWrongBoolean, "ERROR-WrongBoolean");
-  char c = *it;
-  it += rbool->str().length();
-  r.it = it;
-  r.status = kSuccess;
-  r.dic =  (c=='t') ? 1 : 0;
-  return r; // TODO Add bool to Dict. True or TRUE also?
+  char * cp = &*it;
+  if( *cp == 't' && *(cp+1)=='r' && *(cp+2)=='u' && *(cp+3)=='e' ){
+    it=it+4;
+    Result r(it,kSuccess);
+    r.dic = 1;
+    return r;
+  }else if( *cp == 'f' && *(cp+1)=='a' && *(cp+2)=='l' && *(cp+3)=='s' && *(cp+4)=='e' ){
+    it=it+5;
+    Result r(it,kSuccess);
+    r.dic = 0;
+    return r;
+  }
+  return Result(it, kWrongBoolean );
 }
 
 TxJSON::Result TxJSON::ScanNumber(Iterator &it){
@@ -117,6 +124,8 @@ TxJSON::Result TxJSON::ScanNumber(Iterator &it){
   bool begin_index   = false;
   bool closed = false;
   auto bit = it;
+
+  long long rsi = 0;
   if( *it == '-' || *it== '+'){
     sign = *it=='-'?-1:1;bit++;
     if(!Next(it)) return Result(it,kWrongNumber);
@@ -135,7 +144,8 @@ TxJSON::Result TxJSON::ScanNumber(Iterator &it){
       return r;
     }
   }
-  while( (*it>='0' && *it<='9') && Next(it) ){}
+  rsi = *it-'0';
+  while( (*it>='0' && *it<='9') && Next(it) ){ rsi = rsi*10+*it-'0';}
   if( *it == '.' && !begin_demical && !begin_index){
     begin_demical = true;
     Next(it);
@@ -155,7 +165,8 @@ TxJSON::Result TxJSON::ScanNumber(Iterator &it){
     return r;
   }else if( !begin_with_zero ){
     Result r(it, kInt);
-    r.dic = atoi(String(bit,it).c_str())*sign;
+    //r.dic = atoi(String(bit,it).c_str())*sign;
+    r.dic = int(rsi)*sign;
     return r;
   }
   it = bit;
@@ -165,7 +176,6 @@ TxJSON::Result TxJSON::ScanNumber(Iterator &it){
   else r.dic = int(strtoul(String(bit,it).c_str(), NULL, 8))*sign;
   return r;
 }
-
 
 TxJSON::Result  TxJSON::ScanString(Iterator &it, char quote){
   Result r;
@@ -187,15 +197,7 @@ TxJSON::Result  TxJSON::ScanString(Iterator &it, char quote){
   return r;
 }
 
-bool TxJSON::SkipWhiteSpace(Iterator &it){
-  --it;
-  while( Next(it) && (*it==' ' || *it=='\t' || *it=='\n' || *it=='\r')){
-  }
-  return it != fString.end();
-}
 
+#undef Next
+#undef SkipWhiteSpace
 
-bool TxJSON::Next(Iterator &it){
-  if( it == fString.end() ) return false;
-  it++; return (it != fString.end()) ;
-}

@@ -35,3 +35,4 @@ log
 gen_big_json.sh
 out.txt
 testjson
+rapidjson

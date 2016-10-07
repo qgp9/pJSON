@@ -64,7 +64,7 @@ void _testTxJSON(){
     Test( R"({ 123 : [2,3,4,"abc", { "abc":456,453:"123"}] })"
         ,R"({ "123":[ 2, 3, 4, "abc", { "453":"123", "abc":456 } ] })", TxJSON::kSuccess ),
   };
-  if(0){
+  if(1){
     for ( auto s : sf ){
       TxJSON j(s.src);
       j.Compile();
@@ -88,7 +88,7 @@ void _testTxJSON(){
     TxJSON j;
     if( j.LoadFile( "example.json" ) ){
       auto &d = j.GetDict();
-      cout<<d.Str(1)<<endl;
+      //cout<<d.Str(1)<<endl;
     }else{
       cout<<"Error while loading file "<<j.GetErrorStr(j.GetStatus())<<endl;
       auto it = j.GetCurrentIter();

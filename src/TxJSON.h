@@ -3,8 +3,12 @@
 #include <string>
 #include <regex>
 #include <cstdlib>
+#ifndef TxDict_H
 #include "TxDict.h"
+#endif
 
+#define Next(x) (++x!=fString.end())
+#define SkipWhiteSpace(it)  --it;while( Next(it) && (*it==' ' || *it=='\t' || *it=='\n' || *it=='\r')){}
 class TxJSON{
 public:
   enum StatusCode { kSuccess, kInt, kFloat, kFail, kUnknown, kWrongNumber, kWrongString, kWrongArray, kWrongMap,kWrongBoolean, kNStatusCode};
@@ -37,12 +41,16 @@ public:
   };
 
   TxJSON(){}
-  TxJSON( String s ):fString(s),fIt(fString.begin()){}
+  TxJSON( String s ):fString(s),fStrPtr(&fString),fIt(fStrPtr->begin()){}
+  TxJSON( String *s ):fString(),fStrPtr(s),fIt(fStrPtr->begin()){}
+  TxJSON( String &&s ):fString(std::move(s)),fStrPtr(&fString),fIt(fStrPtr->begin()){}
 
   TxDict& GetDict() { return fResult.dic; }
   StatusCode GetStatus() const { return fResult.status; }
   Iterator GetCurrentIter(){ return fResult.it; }
-  void SetJSONString( String s){ fString = s;fIt=fString.begin(); }
+  void SetJSONString( String s){ fString = s;fStrPtr=&fString;fIt=fStrPtr->begin(); }
+  void SetJSONStringLV( String &&s) noexcept { fString = std::move(s);fStrPtr=&fString;fIt=fStrPtr->begin(); }
+  void SetJSONStrPtr( String *s){ fStrPtr=s;fIt=fStrPtr->begin(); }
 
   bool Compile();
 
@@ -57,10 +65,26 @@ private:
   Result ScanString(Iterator &it, char quote);
   Result ScanBoolean(Iterator &it);
 
-  bool SkipWhiteSpace(Iterator &it);
-  bool Next(Iterator &it);
-  bool Next(){ return Next(fIt); }
+  /*
+  inline bool SkipWhiteSpace(Iterator &it){
+    --it;
+    while( Next(it) && (*it==' ' || *it=='\t' || *it=='\n' || *it=='\r')){
+    }
+    return it != fStrPtr->end();
+  }
+  */
+  //inline bool Next(Iterator &it);
+  /*
+  inline bool Next(Iterator &it){
+    if( it == fString.end() ) return false;
+    it++; return (it != fString.end()) ;
+  }
+  inline bool Next(){ return Next(fIt); }
+  */
+
+//  inline bool Next(Iterator &it){return (++it != fStrPtr->end()) ;}
   String     fString;
+  String *   fStrPtr;
   Iterator   fIt;
   Result     fResult;
   const static std::regex re_boolean;
