@@ -2,7 +2,7 @@
 
 ## Usage
 
-```
+```bash
 # Genereate example json
 ./gen_big_json.sh
 # Compile
