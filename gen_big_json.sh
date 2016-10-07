@@ -13,6 +13,7 @@ main(){
   echo ']'
   )> example_small.json
 
+  ln -sf example_small.json example.json
 }
 print_json_base(){
   cat<<'EOFF'
