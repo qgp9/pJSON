@@ -50,12 +50,12 @@ public:
   bool LoadFile( String path ); 
 
 private:
-  Result   ScanItem(Iterator &it);
-  Result  ScanArray(Iterator &it);
-  Result  ScanMap(Iterator &it);
+  Result ScanItem(Iterator &it);
+  Result ScanArray(Iterator &it);
+  Result ScanMap(Iterator &it);
   Result ScanNumber(Iterator &it);
-  Result  ScanString(Iterator &it, char quote);
-  Result  ScanBoolean(Iterator &it);
+  Result ScanString(Iterator &it, char quote);
+  Result ScanBoolean(Iterator &it);
 
   bool SkipWhiteSpace(Iterator &it);
   bool Next(Iterator &it);
