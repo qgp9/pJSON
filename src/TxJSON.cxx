@@ -113,39 +113,61 @@ TxJSON::Result  TxJSON::ScanBoolean(Iterator &it){
 }
 
 TxJSON::Result TxJSON::ScanNumber(Iterator &it){
-  Result r;
-  auto rend = std::sregex_iterator();
-  auto rinte = std::sregex_iterator( it, fString.end(), re_int );
-  auto rfloat = std::sregex_iterator( it, fString.end(), re_float );
-  if( rinte == rend && rfloat == rend ) {
-    r.Set( it, kWrongNumber,"ERROR" );
+  int  sign = 1;
+  bool begin_with_zero = false;
+  bool begin_demical = false;
+  bool begin_index   = false;
+  bool closed = false;
+  auto bit = it;
+  if( *it == '-' || *it== '+'){
+    sign = *it=='-'?-1:1;bit++;
+    if(!Next(it)) return Result(it,kWrongNumber);
+  }
+  if( *it == '0' ) {
+    begin_with_zero=true;
+    if( !Next(it) ){
+      Result r(it,kInt); r.dic = 0;
+      return r;
+    }
+    if( *it == 'x' ) {
+      auto bit = it+1;
+      while( Next(it) && ( (*it>='0' && *it<='9') || (*it>='a' && *it<='f') || (*it>='A'&&*it<='F')));
+      Result r(it,kInt);
+      r.dic=int(strtoul(String(bit,it).c_str(), NULL, 16))*sign;
+      return r;
+    }
+  }
+  while( (*it>='0' && *it<='9') && Next(it) ){}
+  if( *it == '.' && !begin_demical && !begin_index){
+    begin_demical = true;
+    Next(it);
+    while( (*it>='0' && *it<='9') && Next(it));
+  }
+  if( (*it == 'e' || *it == 'E') && begin_index == false){
+    begin_index = true;
+    if(!Next(it))  return Result(it,kWrongNumber);
+    if( *it == '-' || *it=='+' )
+      if(!Next(it))  return Result(it,kWrongNumber);
+    while( Next(it) && (*it>='0' && *it<='9') );
+  }
+  if( bit == it ) return Result(it,kWrongNumber);
+  if( begin_demical || begin_index ){
+    Result r(it,kFloat);
+    r.dic = atof(String(bit,it).c_str())*sign;
+    return r;
+  }else if( !begin_with_zero ){
+    Result r(it, kInt);
+    r.dic = atoi(String(bit,it).c_str())*sign;
     return r;
   }
-  if( 
-      (rfloat == rend && rinte != rend)
-      || rfloat->str().length() <= rinte->str().length() 
-    ) {
-    int res;
-    std::smatch sm = *rinte;
-    String si  = sm.str();
-    String sii = sm[1];
-    if( sii == "0" ) res = 0;
-    else if( sii[1] == 'x' ) res = strtoul(sii.substr(2).c_str(), NULL, 16);
-    else if( sii[0] == '0' ) res = strtoul(sii.substr(1).c_str(), NULL, 8);
-    else res = atoi( sii.c_str() );
-    if( si[0] == '-' ) res = -res;
-    it+=si.length();
-    r.it = it;
-    r.status = kInt;
-    r.dic = res;
-    return r;
-  }
-  it+= rfloat->str().length();
-  r.it = it;
-  r.status = kFloat;
-  r.dic = atof(rfloat->str().c_str());
+  it = bit;
+  while( (*it>='0' && *it<='7' ) && Next(it) );
+  Result r(it,kInt);
+  if( it == bit ) r.dic = 0;
+  else r.dic = int(strtoul(String(bit,it).c_str(), NULL, 8))*sign;
   return r;
 }
+
 
 TxJSON::Result  TxJSON::ScanString(Iterator &it, char quote){
   Result r;
