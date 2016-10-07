@@ -125,7 +125,6 @@ TxJSON::Result TxJSON::ScanNumber(Iterator &it){
   bool closed = false;
   auto bit = it;
 
-  long long rsi = 0;
   if( *it == '-' || *it== '+'){
     sign = *it=='-'?-1:1;bit++;
     if(!Next(it)) return Result(it,kWrongNumber);
@@ -144,8 +143,7 @@ TxJSON::Result TxJSON::ScanNumber(Iterator &it){
       return r;
     }
   }
-  rsi = *it-'0';
-  while( (*it>='0' && *it<='9') && Next(it) ){ rsi = rsi*10+*it-'0';}
+  while( (*it>='0' && *it<='9') && Next(it) ){ }
   if( *it == '.' && !begin_demical && !begin_index){
     begin_demical = true;
     Next(it);
@@ -165,8 +163,7 @@ TxJSON::Result TxJSON::ScanNumber(Iterator &it){
     return r;
   }else if( !begin_with_zero ){
     Result r(it, kInt);
-    //r.dic = atoi(String(bit,it).c_str())*sign;
-    r.dic = int(rsi)*sign;
+    r.dic = atoi(String(bit,it).c_str())*sign;
     return r;
   }
   it = bit;
