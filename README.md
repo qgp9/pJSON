@@ -1,4 +1,5 @@
 # pJSON
+Lite and Handy JSON parser
 
 ## Compile
 
